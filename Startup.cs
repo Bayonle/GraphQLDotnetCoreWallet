@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GraphqlWallets.Infrastructure.Data;
 using GraphqlWallets.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using GraphQL.Server.Ui.GraphiQL;
 
 namespace GraphqlWallets
 {
@@ -28,6 +30,7 @@ namespace GraphqlWallets
         {
             services.AddControllers();
             services.AddPersistence(Configuration);
+            services.AddRepositories();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -48,6 +51,7 @@ namespace GraphqlWallets
             {
                 endpoints.MapControllers();
             });
+            app.UseGraphiQLServer(new GraphiQLOptions());
         }
     }
 }
