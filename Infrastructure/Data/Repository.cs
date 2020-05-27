@@ -20,7 +20,7 @@ public abstract class Repository<TEntity, TContext> : IRepository<TEntity>
             return entity;
         }
 
-        public async Task<TEntity> Delete(int id)
+        public async Task<TEntity> Delete(long id)
         {
             var entity = await context.Set<TEntity>().FindAsync(id);
             if (entity == null)
@@ -34,7 +34,7 @@ public abstract class Repository<TEntity, TContext> : IRepository<TEntity>
             return entity;
         }
 
-        public async Task<TEntity> Get(int id)
+        public async Task<TEntity> Get(long id)
         {
             return await context.Set<TEntity>().FindAsync(id);
         }

@@ -1,18 +1,15 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using GraphqlWallets.Infrastructure.Data;
 using GraphqlWallets.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using GraphQL.Server.Ui.GraphiQL;
+using GraphqlWallets.GraphQL;
+using HotChocolate;
+using HotChocolate.AspNetCore;
+using GraphqlWallets.GraphQL.GraphTypes;
 
 namespace GraphqlWallets
 {
@@ -28,6 +25,17 @@ namespace GraphqlWallets
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddGraphQL(option => {
+                return SchemaBuilder.New()
+                .AddQueryType<QueryType>()
+                .AddMutationType<MutationType>()
+                .Create();
+            });
+            // services.AddGraphQL((options, provider) => {
+            //     options.EnableMetrics = Environment.IsDevelopment();
+            //     options.ExposeExceptions = Environment.IsDevelopment();
+            // });
+
             services.AddControllers();
             services.AddPersistence(Configuration);
             services.AddRepositories();
@@ -51,7 +59,15 @@ namespace GraphqlWallets
             {
                 endpoints.MapControllers();
             });
-            app.UseGraphiQLServer(new GraphiQLOptions());
+
+            app
+                .UseGraphQLHttpPost(new HttpPostMiddlewareOptions{Path = "/graphql"})
+                .UseGraphQLHttpGetSchema(new HttpGetSchemaMiddlewareOptions { Path = "/graphql/schema" });
+
+            app.UseGraphiql("/graphiql", options =>
+            {
+                options.GraphQlEndpoint = "/graphql";
+            });            // app.UseGraphQL<WalletSchema>();
         }
     }
 }
